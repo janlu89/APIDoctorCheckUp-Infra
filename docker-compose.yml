@@ -1,0 +1,33 @@
+services:
+
+  api:
+    build:
+      context: ../APIDoctorCheckUp-API
+      dockerfile: APIDoctorCheckUp.Api/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - apidoctor-data:/data
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=/data/apidoctorcheckup.db
+      - JWT__Secret=${JWT_SECRET}
+      - JWT__Issuer=APIDoctorCheckUp
+      - JWT__Audience=APIDoctorCheckUp
+      - JWT__ExpiryHours=12
+      - Admin__Username=${ADMIN_USERNAME}
+      - Admin__Password=${ADMIN_PASSWORD}
+      - Cors__AllowedOrigins__0=http://localhost:4200
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ../APIDoctorCheckUp-Client
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  apidoctor-data:
